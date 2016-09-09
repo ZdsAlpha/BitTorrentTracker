@@ -33,12 +33,15 @@ Partial Class Chat
         Me.TextBox1 = New System.Windows.Forms.TextBox()
         Me.Button2 = New System.Windows.Forms.Button()
         Me.Button3 = New System.Windows.Forms.Button()
+        Me.Button4 = New System.Windows.Forms.Button()
+        Me.TextBox2 = New System.Windows.Forms.TextBox()
+        Me.Label5 = New System.Windows.Forms.Label()
         Me.SuspendLayout()
         '
         'Label1
         '
         Me.Label1.AutoSize = True
-        Me.Label1.Location = New System.Drawing.Point(12, 15)
+        Me.Label1.Location = New System.Drawing.Point(12, 41)
         Me.Label1.Name = "Label1"
         Me.Label1.Size = New System.Drawing.Size(61, 13)
         Me.Label1.TabIndex = 0
@@ -47,7 +50,7 @@ Partial Class Chat
         'Trackers
         '
         Me.Trackers.Font = New System.Drawing.Font("Consolas", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Trackers.Location = New System.Drawing.Point(79, 12)
+        Me.Trackers.Location = New System.Drawing.Point(79, 38)
         Me.Trackers.Name = "Trackers"
         Me.Trackers.Size = New System.Drawing.Size(414, 20)
         Me.Trackers.TabIndex = 1
@@ -56,7 +59,7 @@ Partial Class Chat
         'Label2
         '
         Me.Label2.AutoSize = True
-        Me.Label2.Location = New System.Drawing.Point(12, 41)
+        Me.Label2.Location = New System.Drawing.Point(12, 67)
         Me.Label2.Name = "Label2"
         Me.Label2.Size = New System.Drawing.Size(55, 13)
         Me.Label2.TabIndex = 2
@@ -64,7 +67,7 @@ Partial Class Chat
         '
         'channel
         '
-        Me.channel.Location = New System.Drawing.Point(79, 38)
+        Me.channel.Location = New System.Drawing.Point(79, 64)
         Me.channel.Name = "channel"
         Me.channel.Size = New System.Drawing.Size(414, 20)
         Me.channel.TabIndex = 3
@@ -73,7 +76,7 @@ Partial Class Chat
         'Button1
         '
         Me.Button1.Font = New System.Drawing.Font("Consolas", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Button1.Location = New System.Drawing.Point(499, 13)
+        Me.Button1.Location = New System.Drawing.Point(499, 39)
         Me.Button1.Name = "Button1"
         Me.Button1.Size = New System.Drawing.Size(81, 19)
         Me.Button1.TabIndex = 4
@@ -83,7 +86,7 @@ Partial Class Chat
         'Label3
         '
         Me.Label3.AutoSize = True
-        Me.Label3.Location = New System.Drawing.Point(12, 70)
+        Me.Label3.Location = New System.Drawing.Point(12, 96)
         Me.Label3.Name = "Label3"
         Me.Label3.Size = New System.Drawing.Size(37, 13)
         Me.Label3.TabIndex = 5
@@ -92,7 +95,7 @@ Partial Class Chat
         'textfield
         '
         Me.textfield.BackColor = System.Drawing.Color.White
-        Me.textfield.Location = New System.Drawing.Point(15, 86)
+        Me.textfield.Location = New System.Drawing.Point(15, 112)
         Me.textfield.Multiline = True
         Me.textfield.Name = "textfield"
         Me.textfield.ReadOnly = True
@@ -102,7 +105,7 @@ Partial Class Chat
         'Label4
         '
         Me.Label4.AutoSize = True
-        Me.Label4.Location = New System.Drawing.Point(12, 309)
+        Me.Label4.Location = New System.Drawing.Point(12, 335)
         Me.Label4.Name = "Label4"
         Me.Label4.Size = New System.Drawing.Size(55, 13)
         Me.Label4.TabIndex = 7
@@ -110,7 +113,7 @@ Partial Class Chat
         '
         'TextBox1
         '
-        Me.TextBox1.Location = New System.Drawing.Point(79, 306)
+        Me.TextBox1.Location = New System.Drawing.Point(79, 332)
         Me.TextBox1.Name = "TextBox1"
         Me.TextBox1.Size = New System.Drawing.Size(414, 20)
         Me.TextBox1.TabIndex = 8
@@ -119,7 +122,7 @@ Partial Class Chat
         'Button2
         '
         Me.Button2.Font = New System.Drawing.Font("Consolas", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Button2.Location = New System.Drawing.Point(499, 307)
+        Me.Button2.Location = New System.Drawing.Point(499, 333)
         Me.Button2.Name = "Button2"
         Me.Button2.Size = New System.Drawing.Size(81, 19)
         Me.Button2.TabIndex = 9
@@ -129,19 +132,50 @@ Partial Class Chat
         'Button3
         '
         Me.Button3.Font = New System.Drawing.Font("Consolas", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Button3.Location = New System.Drawing.Point(499, 39)
+        Me.Button3.Location = New System.Drawing.Point(499, 65)
         Me.Button3.Name = "Button3"
         Me.Button3.Size = New System.Drawing.Size(81, 19)
         Me.Button3.TabIndex = 10
         Me.Button3.Text = "Check"
         Me.Button3.UseVisualStyleBackColor = True
         '
+        'Button4
+        '
+        Me.Button4.Font = New System.Drawing.Font("Consolas", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Button4.Location = New System.Drawing.Point(499, 90)
+        Me.Button4.Name = "Button4"
+        Me.Button4.Size = New System.Drawing.Size(81, 19)
+        Me.Button4.TabIndex = 11
+        Me.Button4.Text = "Announce"
+        Me.Button4.UseVisualStyleBackColor = True
+        '
+        'TextBox2
+        '
+        Me.TextBox2.Font = New System.Drawing.Font("Consolas", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.TextBox2.Location = New System.Drawing.Point(79, 12)
+        Me.TextBox2.Name = "TextBox2"
+        Me.TextBox2.Size = New System.Drawing.Size(414, 20)
+        Me.TextBox2.TabIndex = 12
+        Me.TextBox2.Text = "unnamed"
+        '
+        'Label5
+        '
+        Me.Label5.AutoSize = True
+        Me.Label5.Location = New System.Drawing.Point(12, 15)
+        Me.Label5.Name = "Label5"
+        Me.Label5.Size = New System.Drawing.Size(37, 13)
+        Me.Label5.TabIndex = 13
+        Me.Label5.Text = "Name:"
+        '
         'Chat
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.White
-        Me.ClientSize = New System.Drawing.Size(592, 339)
+        Me.ClientSize = New System.Drawing.Size(592, 368)
+        Me.Controls.Add(Me.Label5)
+        Me.Controls.Add(Me.TextBox2)
+        Me.Controls.Add(Me.Button4)
         Me.Controls.Add(Me.Button3)
         Me.Controls.Add(Me.Button2)
         Me.Controls.Add(Me.TextBox1)
@@ -175,4 +209,7 @@ Partial Class Chat
     Friend WithEvents TextBox1 As TextBox
     Friend WithEvents Button2 As Button
     Friend WithEvents Button3 As Button
+    Friend WithEvents Button4 As Button
+    Friend WithEvents TextBox2 As TextBox
+    Friend WithEvents Label5 As Label
 End Class
