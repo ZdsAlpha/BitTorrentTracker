@@ -103,7 +103,7 @@ Retry:
         Dim rawrequest As Byte() = request.ToArray
         writer.Dispose()
         request.Dispose()
-        If _client.Send(rawrequest, rawrequest.Length, _endpoint) <> rawrequest.Length Then Throw New Exception("")
+        If _client.Send(rawrequest, rawrequest.Length, _endpoint) <> rawrequest.Length Then Throw New Exception("Packet was not sent properly.")
         Dim source As IPEndPoint = Nothing
 Retry:
         Dim rawresponse As Byte() = _client.Receive(source)
@@ -133,8 +133,9 @@ Retry:
     Public Function Scrape(ParamArray Hashes As Byte()()) As ScrapeInfo()
         If _client Is Nothing Then Throw New Exception("Tracker is disposed.")
         If _endpoint Is Nothing Or _connectionid = &H41727101980L Then Throw New Exception("Not connected to tracker.")
-        If Hashes Is Nothing OrElse Hashes.Length = 0 Then Throw New Exception("Add atleast one hash.")
+        If Hashes Is Nothing Then Throw New Exception("Add atleast one hash.")
         For Each Hash In Hashes
+            If Hash Is Nothing Then Throw New Exception("Hash must not be null.")
             If Hash.Length <> 20 Then Throw New Exception("Hash size must be 20.")
         Next
         Dim transaction_id As Integer = random.Next(65535)
@@ -147,7 +148,46 @@ Retry:
             writer.Write(Hash)
         Next
         Dim rawrequest As Byte() = request.ToArray
-
+        writer.Dispose()
+        request.Dispose()
+        If _client.Send(rawrequest, rawrequest.Length, _endpoint) <> rawrequest.Length Then Throw New Exception("Packet was not sent properly.")
+        Dim source As IPEndPoint = Nothing
+Retry:
+        Dim rawresponse As Byte() = _client.Receive(source)
+        If source Is Nothing OrElse rawresponse Is Nothing Then Throw New Exception("Failed to get response from server.")
+        If Not _endpoint.Equals(source) Then
+            source = Nothing
+            GoTo Retry
+        End If
+        If rawresponse.Length < 8 Then Throw New Exception("")
+        Dim response As New IO.MemoryStream(rawresponse)
+        Dim reader As New EndianBinaryReader(bitconverter, response)
+        Select Case reader.ReadInt32
+            Case 2
+            Case 3
+                Throw New Exception("Error while scrapping in server.")
+            Case Else
+                Throw New Exception("Invalid return parameter 'action'.")
+        End Select
+        If reader.ReadInt32 <> transaction_id Then Throw New Exception("Invalid transaction id or packet is corrupted.")
+        Dim Result As New List(Of ScrapeInfo)
+        Dim Index As Integer = 0
+        While Not response.Position = response.Length
+            If Index = Hashes.Length Then Exit While
+            Dim seeders As Integer = reader.ReadInt32
+            Dim completed As Integer = reader.ReadInt32
+            Dim leechers As Integer = reader.ReadInt32
+            Dim info As New ScrapeInfo
+            info.Hash = Hashes(Index)
+            info.Seeders = seeders
+            info.Completed = completed
+            info.Leechers = leechers
+            Result.Add(info)
+            Index += 1
+        End While
+        reader.Dispose()
+        response.Dispose()
+        Return Result.ToArray
     End Function
     Public Sub Dispose() Implements IDisposable.Dispose
         _client.Close()
