@@ -126,9 +126,27 @@ Retry:
             Dim P As Short = reader.ReadInt16
             clients.Add(New IPEndPoint(IP, P))
         End While
+        reader.Dispose()
+        response.Dispose()
         Return New AnnounceResult With {.Interval = interval, .Leechers = leechers, .Seeders = seeders, .Clients = clients.ToArray}
     End Function
     Public Function Scrape(ParamArray Hashes As Byte()()) As ScrapeInfo()
+        If _client Is Nothing Then Throw New Exception("Tracker is disposed.")
+        If _endpoint Is Nothing Or _connectionid = &H41727101980L Then Throw New Exception("Not connected to tracker.")
+        If Hashes Is Nothing OrElse Hashes.Length = 0 Then Throw New Exception("Add atleast one hash.")
+        For Each Hash In Hashes
+            If Hash.Length <> 20 Then Throw New Exception("Hash size must be 20.")
+        Next
+        Dim transaction_id As Integer = random.Next(65535)
+        Dim request As New IO.MemoryStream
+        Dim writer As New EndianBinaryWriter(bitconverter, request)
+        writer.Write(_connectionid)
+        writer.Write(2)
+        writer.Write(transaction_id)
+        For Each Hash In Hashes
+            writer.Write(Hash)
+        Next
+        Dim rawrequest As Byte() = request.ToArray
 
     End Function
     Public Sub Dispose() Implements IDisposable.Dispose
