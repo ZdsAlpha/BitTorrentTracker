@@ -3,14 +3,17 @@ Imports System.Net.Sockets
 Imports System.Security.Cryptography
 Imports Zds.BitTorrent
 Public Class Chat
-    Private _listener As UdpClient = Nothing
+    Private _listener As UdpClient
     Private _tracker As Tracker = Nothing
     Private _clients As IPEndPoint() = Nothing
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles connectbutton.Click
         Try
-            Dim opener As New Tracker
+            _listener = New UdpClient
+            _listener.ExclusiveAddressUse = True
+            Dim opener As New Tracker(_listener)
             opener.Timeout = 5000
             opener.Connect(Split(Trackers.Text, ":")(0), Integer.Parse(Split(Trackers.Text, ":")(1)))
+            opener.Timeout = 0
             _listener = opener.Client
             _tracker = New Tracker
             _tracker.Timeout = 5000
