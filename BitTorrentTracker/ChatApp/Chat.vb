@@ -8,10 +8,12 @@ Public Class Chat
     Private _clients As IPEndPoint() = Nothing
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles connectbutton.Click
         Try
-            _listener = New UdpClient
-            Dim opener As New Tracker(_listener)
+            Dim opener As New Tracker
+            opener.Timeout = 5000
             opener.Connect(Split(Trackers.Text, ":")(0), Integer.Parse(Split(Trackers.Text, ":")(1)))
+            _listener = opener.Client
             _tracker = New Tracker
+            _tracker.Timeout = 5000
             _tracker.Connect(Split(Trackers.Text, ":")(0), Integer.Parse(Split(Trackers.Text, ":")(1)))
             checkbutton.Enabled = True
             channel.Enabled = True
@@ -65,5 +67,23 @@ Public Class Chat
         For Each client In _clients
             _listener.Send(raw, raw.Length, client)
         Next
+        textfield.Text += "Me: " + message.Text + vbNewLine
+    End Sub
+    Private Sub Updater_Tick(sender As Object, e As EventArgs) Handles Updater.Tick
+        If _listener IsNot Nothing Then
+            If _listener.Available <> 0 Then
+                Try
+                    Dim source As IPEndPoint = Nothing
+                    Dim raw As Byte() = _listener.Receive(source)
+                    Dim Packet As New IO.MemoryStream(raw)
+                    Dim reader As New IO.BinaryReader(Packet)
+                    Dim name As String = reader.ReadString
+                    Dim message As String = reader.ReadString
+                    textfield.Text += name + "(" + source.Address.ToString + ":" + source.Port.ToString + "): " + message + vbNewLine
+                Catch ex As Exception
+                    Stop
+                End Try
+            End If
+        End If
     End Sub
 End Class

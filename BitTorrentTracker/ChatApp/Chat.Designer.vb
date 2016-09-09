@@ -22,6 +22,7 @@ Partial Class Chat
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
+        Me.components = New System.ComponentModel.Container()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.Trackers = New System.Windows.Forms.TextBox()
         Me.Label2 = New System.Windows.Forms.Label()
@@ -36,6 +37,7 @@ Partial Class Chat
         Me.announcebutton = New System.Windows.Forms.Button()
         Me.name = New System.Windows.Forms.TextBox()
         Me.Label5 = New System.Windows.Forms.Label()
+        Me.Updater = New System.Windows.Forms.Timer(Me.components)
         Me.SuspendLayout()
         '
         'Label1
@@ -172,6 +174,11 @@ Partial Class Chat
         Me.Label5.TabIndex = 13
         Me.Label5.Text = "Name:"
         '
+        'Updater
+        '
+        Me.Updater.Enabled = True
+        Me.Updater.Interval = 1000
+        '
         'Chat
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -193,7 +200,6 @@ Partial Class Chat
         Me.Controls.Add(Me.Trackers)
         Me.Controls.Add(Me.Label1)
         Me.Font = New System.Drawing.Font("Consolas", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.name = "Chat"
         Me.Opacity = 0.95R
         Me.ShowIcon = False
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
@@ -217,4 +223,5 @@ Partial Class Chat
     Friend WithEvents announcebutton As Button
     Friend WithEvents name As TextBox
     Friend WithEvents Label5 As Label
+    Friend WithEvents Updater As Timer
 End Class
