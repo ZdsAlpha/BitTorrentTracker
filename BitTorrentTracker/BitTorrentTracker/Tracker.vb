@@ -77,7 +77,7 @@ Retry:
     Public Sub Connect(Host As String, Port As Integer)
         Connect(Dns.GetHostEntry(Host).AddressList(0), Port)
     End Sub
-    Public Function Announce(Hash As Byte(), PeerId As Byte(), Optional Downloaded As Long = 0, Optional Remaining As Long = 0, Optional Uploaded As Long = 0, Optional [Event] As EventTypeFilter = EventTypeFilter.Started, Optional IPAddress As IPAddress = Nothing, Optional Count As Integer = -1, Optional Port As Short = 0) As AnnounceResult
+    Public Function Announce(Hash As Byte(), PeerId As Byte(), Optional Downloaded As Long = 0, Optional Remaining As Long = 0, Optional Uploaded As Long = 0, Optional [Event] As EventTypeFilter = EventTypeFilter.Started, Optional IPAddress As IPAddress = Nothing, Optional Count As Integer = -1, Optional Port As UShort = 0) As AnnounceResult
         If IPAddress Is Nothing Then IPAddress = New IPAddress(0)
         If _client Is Nothing Then Throw New Exception("Tracker is disposed.")
         If _endpoint Is Nothing Or _connectionid = &H41727101980L Then Throw New Exception("Not connected to tracker.")
@@ -123,7 +123,7 @@ Retry:
         Dim clients As New List(Of IPEndPoint)
         While Not response.Position = response.Length
             Dim IP As New IPAddress(System.BitConverter.GetBytes(reader.ReadInt32).Reverse().ToArray)
-            Dim P As Short = reader.ReadInt16
+            Dim P As UShort = reader.ReadUInt16
             clients.Add(New IPEndPoint(IP, P))
         End While
         reader.Dispose()

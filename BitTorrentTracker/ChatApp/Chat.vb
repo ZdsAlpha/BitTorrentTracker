@@ -48,9 +48,22 @@ Public Class Chat
             r.NextBytes(id)
             Dim ipendpoint As IPEndPoint = _listener.Client.LocalEndPoint
             Dim result = _tracker.Announce(hash, id,,,,,,, ipendpoint.Port)
+            message.Enabled = True
+            sendbutton.Enabled = True
             _clients = result.Clients
         Catch ex As Exception
             MsgBox("Unable to announce.")
         End Try
+    End Sub
+
+    Private Sub sendbutton_Click(sender As Object, e As EventArgs) Handles sendbutton.Click
+        Dim packet As New IO.MemoryStream
+        Dim writer As New IO.BinaryWriter(packet)
+        writer.Write(name.Text)
+        writer.Write(message.Text)
+        Dim raw As Byte() = packet.ToArray
+        For Each client In _clients
+            _listener.Send(raw, raw.Length, client)
+        Next
     End Sub
 End Class

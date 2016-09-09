@@ -34,7 +34,7 @@ Partial Class Chat
         Me.sendbutton = New System.Windows.Forms.Button()
         Me.checkbutton = New System.Windows.Forms.Button()
         Me.announcebutton = New System.Windows.Forms.Button()
-        Me.TextBox2 = New System.Windows.Forms.TextBox()
+        Me.name = New System.Windows.Forms.TextBox()
         Me.Label5 = New System.Windows.Forms.Label()
         Me.SuspendLayout()
         '
@@ -154,14 +154,14 @@ Partial Class Chat
         Me.announcebutton.Text = "Announce"
         Me.announcebutton.UseVisualStyleBackColor = True
         '
-        'TextBox2
+        'name
         '
-        Me.TextBox2.Font = New System.Drawing.Font("Consolas", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TextBox2.Location = New System.Drawing.Point(79, 12)
-        Me.TextBox2.Name = "TextBox2"
-        Me.TextBox2.Size = New System.Drawing.Size(414, 20)
-        Me.TextBox2.TabIndex = 12
-        Me.TextBox2.Text = "unnamed"
+        Me.name.Font = New System.Drawing.Font("Consolas", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.name.Location = New System.Drawing.Point(79, 12)
+        Me.name.Name = "name"
+        Me.name.Size = New System.Drawing.Size(414, 20)
+        Me.name.TabIndex = 12
+        Me.name.Text = "unnamed"
         '
         'Label5
         '
@@ -179,7 +179,7 @@ Partial Class Chat
         Me.BackColor = System.Drawing.Color.White
         Me.ClientSize = New System.Drawing.Size(592, 368)
         Me.Controls.Add(Me.Label5)
-        Me.Controls.Add(Me.TextBox2)
+        Me.Controls.Add(Me.name)
         Me.Controls.Add(Me.announcebutton)
         Me.Controls.Add(Me.checkbutton)
         Me.Controls.Add(Me.sendbutton)
@@ -193,7 +193,7 @@ Partial Class Chat
         Me.Controls.Add(Me.Trackers)
         Me.Controls.Add(Me.Label1)
         Me.Font = New System.Drawing.Font("Consolas", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Name = "Chat"
+        Me.name = "Chat"
         Me.Opacity = 0.95R
         Me.ShowIcon = False
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
@@ -215,6 +215,6 @@ Partial Class Chat
     Friend WithEvents sendbutton As Button
     Friend WithEvents checkbutton As Button
     Friend WithEvents announcebutton As Button
-    Friend WithEvents TextBox2 As TextBox
+    Friend WithEvents name As TextBox
     Friend WithEvents Label5 As Label
 End Class
