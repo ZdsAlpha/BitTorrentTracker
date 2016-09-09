@@ -1,5 +1,5 @@
 ﻿Imports System.Net
-Imports BitTorrentTracker
+Imports Zds.BitTorrent
 
 Module Main
     Sub Main()
