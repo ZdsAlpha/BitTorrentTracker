@@ -7,7 +7,7 @@ Public Class Tracker
     Implements IDisposable
     Private Shared bitconverter As New MiscUtil.Conversion.BigEndianBitConverter
     Private Shared random As New Random
-    Private _client As New UdpClient
+    Private _client As UdpClient
     Private _endpoint As IPEndPoint
     Private _connectionid As Long = &H41727101980L
     Public ReadOnly Property IsDisposed As Boolean
@@ -128,11 +128,26 @@ Retry:
         End While
         Return New AnnounceResult With {.Interval = interval, .Leechers = leechers, .Seeders = seeders, .Clients = clients.ToArray}
     End Function
+    Public Function Scrape(ParamArray Hashes As Byte()()) As ScrapeInfo()
+
+    End Function
     Public Sub Dispose() Implements IDisposable.Dispose
         _client.Close()
         _client = Nothing
         _connectionid = &H41727101980L
     End Sub
+    Sub New()
+        _client = New UdpClient
+    End Sub
+    Sub New(Client As UdpClient)
+        _client = Client
+    End Sub
+    Public Structure ScrapeInfo
+        Public Hash As Byte()
+        Public Seeders As Integer
+        Public Completed As Integer
+        Public Leechers As Integer
+    End Structure
     Public Structure AnnounceResult
         Public Interval As Integer
         Public Leechers As Integer
