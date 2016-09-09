@@ -8,7 +8,8 @@ Module Main
         Dim name(19) As Byte
         Dim random As New Random
         random.NextBytes(name)
-        Dim result = tracker.Announce(HexToBin("fddb8e14462d92ab42c5b0cc47e821e16ac89493"), name,,,, Tracker.EventTypeFilter.Completed,,, 8080)
+        'Dim result = tracker.Announce(HexToBin("fddb8e14462d92ab42c5b0cc47e821e16ac89493"), name,,,, Tracker.EventTypeFilter.Completed,,, 8080)
+        Dim result = tracker.Scrape(HexToBin("fddb8e14462d92ab42c5b0cc47e821e16ac89493"), HexToBin("fddb8e14462d92ab42c5b0cc47e821e16ac89493"), HexToBin("132a4850ca31eb348fc291d20204bce55bb26c42"))
         Stop
     End Sub
     Public Function HexToBin(hex As String) As Byte()

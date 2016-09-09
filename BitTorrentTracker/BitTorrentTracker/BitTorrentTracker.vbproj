@@ -6,7 +6,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{AEF7EBF5-616A-4FFC-8962-BB9A2B9FAC8E}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>BitTorrentTracker</RootNamespace>
+    <RootNamespace>Zds.BitTorrent</RootNamespace>
     <AssemblyName>BitTorrentTracker</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>Windows</MyType>
