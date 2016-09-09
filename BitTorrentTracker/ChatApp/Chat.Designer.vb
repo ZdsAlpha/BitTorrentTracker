@@ -26,14 +26,14 @@ Partial Class Chat
         Me.Trackers = New System.Windows.Forms.TextBox()
         Me.Label2 = New System.Windows.Forms.Label()
         Me.channel = New System.Windows.Forms.TextBox()
-        Me.Button1 = New System.Windows.Forms.Button()
+        Me.connectbutton = New System.Windows.Forms.Button()
         Me.Label3 = New System.Windows.Forms.Label()
         Me.textfield = New System.Windows.Forms.TextBox()
         Me.Label4 = New System.Windows.Forms.Label()
-        Me.TextBox1 = New System.Windows.Forms.TextBox()
-        Me.Button2 = New System.Windows.Forms.Button()
-        Me.Button3 = New System.Windows.Forms.Button()
-        Me.Button4 = New System.Windows.Forms.Button()
+        Me.message = New System.Windows.Forms.TextBox()
+        Me.sendbutton = New System.Windows.Forms.Button()
+        Me.checkbutton = New System.Windows.Forms.Button()
+        Me.announcebutton = New System.Windows.Forms.Button()
         Me.TextBox2 = New System.Windows.Forms.TextBox()
         Me.Label5 = New System.Windows.Forms.Label()
         Me.SuspendLayout()
@@ -67,21 +67,22 @@ Partial Class Chat
         '
         'channel
         '
+        Me.channel.Enabled = False
         Me.channel.Location = New System.Drawing.Point(79, 64)
         Me.channel.Name = "channel"
         Me.channel.Size = New System.Drawing.Size(414, 20)
         Me.channel.TabIndex = 3
         Me.channel.Text = "__tbca_default_channel"
         '
-        'Button1
+        'connectbutton
         '
-        Me.Button1.Font = New System.Drawing.Font("Consolas", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Button1.Location = New System.Drawing.Point(499, 39)
-        Me.Button1.Name = "Button1"
-        Me.Button1.Size = New System.Drawing.Size(81, 19)
-        Me.Button1.TabIndex = 4
-        Me.Button1.Text = "Connect"
-        Me.Button1.UseVisualStyleBackColor = True
+        Me.connectbutton.Font = New System.Drawing.Font("Consolas", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.connectbutton.Location = New System.Drawing.Point(499, 39)
+        Me.connectbutton.Name = "connectbutton"
+        Me.connectbutton.Size = New System.Drawing.Size(81, 19)
+        Me.connectbutton.TabIndex = 4
+        Me.connectbutton.Text = "Connect"
+        Me.connectbutton.UseVisualStyleBackColor = True
         '
         'Label3
         '
@@ -111,43 +112,47 @@ Partial Class Chat
         Me.Label4.TabIndex = 7
         Me.Label4.Text = "Message:"
         '
-        'TextBox1
+        'message
         '
-        Me.TextBox1.Location = New System.Drawing.Point(79, 332)
-        Me.TextBox1.Name = "TextBox1"
-        Me.TextBox1.Size = New System.Drawing.Size(414, 20)
-        Me.TextBox1.TabIndex = 8
-        Me.TextBox1.Text = "Hello"
+        Me.message.Enabled = False
+        Me.message.Location = New System.Drawing.Point(79, 332)
+        Me.message.Name = "message"
+        Me.message.Size = New System.Drawing.Size(414, 20)
+        Me.message.TabIndex = 8
+        Me.message.Text = "Hello"
         '
-        'Button2
+        'sendbutton
         '
-        Me.Button2.Font = New System.Drawing.Font("Consolas", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Button2.Location = New System.Drawing.Point(499, 333)
-        Me.Button2.Name = "Button2"
-        Me.Button2.Size = New System.Drawing.Size(81, 19)
-        Me.Button2.TabIndex = 9
-        Me.Button2.Text = "Send"
-        Me.Button2.UseVisualStyleBackColor = True
+        Me.sendbutton.Enabled = False
+        Me.sendbutton.Font = New System.Drawing.Font("Consolas", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.sendbutton.Location = New System.Drawing.Point(499, 333)
+        Me.sendbutton.Name = "sendbutton"
+        Me.sendbutton.Size = New System.Drawing.Size(81, 19)
+        Me.sendbutton.TabIndex = 9
+        Me.sendbutton.Text = "Send"
+        Me.sendbutton.UseVisualStyleBackColor = True
         '
-        'Button3
+        'checkbutton
         '
-        Me.Button3.Font = New System.Drawing.Font("Consolas", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Button3.Location = New System.Drawing.Point(499, 65)
-        Me.Button3.Name = "Button3"
-        Me.Button3.Size = New System.Drawing.Size(81, 19)
-        Me.Button3.TabIndex = 10
-        Me.Button3.Text = "Check"
-        Me.Button3.UseVisualStyleBackColor = True
+        Me.checkbutton.Enabled = False
+        Me.checkbutton.Font = New System.Drawing.Font("Consolas", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.checkbutton.Location = New System.Drawing.Point(499, 65)
+        Me.checkbutton.Name = "checkbutton"
+        Me.checkbutton.Size = New System.Drawing.Size(81, 19)
+        Me.checkbutton.TabIndex = 10
+        Me.checkbutton.Text = "Check"
+        Me.checkbutton.UseVisualStyleBackColor = True
         '
-        'Button4
+        'announcebutton
         '
-        Me.Button4.Font = New System.Drawing.Font("Consolas", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Button4.Location = New System.Drawing.Point(499, 90)
-        Me.Button4.Name = "Button4"
-        Me.Button4.Size = New System.Drawing.Size(81, 19)
-        Me.Button4.TabIndex = 11
-        Me.Button4.Text = "Announce"
-        Me.Button4.UseVisualStyleBackColor = True
+        Me.announcebutton.Enabled = False
+        Me.announcebutton.Font = New System.Drawing.Font("Consolas", 6.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.announcebutton.Location = New System.Drawing.Point(499, 90)
+        Me.announcebutton.Name = "announcebutton"
+        Me.announcebutton.Size = New System.Drawing.Size(81, 19)
+        Me.announcebutton.TabIndex = 11
+        Me.announcebutton.Text = "Announce"
+        Me.announcebutton.UseVisualStyleBackColor = True
         '
         'TextBox2
         '
@@ -175,14 +180,14 @@ Partial Class Chat
         Me.ClientSize = New System.Drawing.Size(592, 368)
         Me.Controls.Add(Me.Label5)
         Me.Controls.Add(Me.TextBox2)
-        Me.Controls.Add(Me.Button4)
-        Me.Controls.Add(Me.Button3)
-        Me.Controls.Add(Me.Button2)
-        Me.Controls.Add(Me.TextBox1)
+        Me.Controls.Add(Me.announcebutton)
+        Me.Controls.Add(Me.checkbutton)
+        Me.Controls.Add(Me.sendbutton)
+        Me.Controls.Add(Me.message)
         Me.Controls.Add(Me.Label4)
         Me.Controls.Add(Me.textfield)
         Me.Controls.Add(Me.Label3)
-        Me.Controls.Add(Me.Button1)
+        Me.Controls.Add(Me.connectbutton)
         Me.Controls.Add(Me.channel)
         Me.Controls.Add(Me.Label2)
         Me.Controls.Add(Me.Trackers)
@@ -202,14 +207,14 @@ Partial Class Chat
     Friend WithEvents Trackers As TextBox
     Friend WithEvents Label2 As Label
     Friend WithEvents channel As TextBox
-    Friend WithEvents Button1 As Button
+    Friend WithEvents connectbutton As Button
     Friend WithEvents Label3 As Label
     Friend WithEvents textfield As TextBox
     Friend WithEvents Label4 As Label
-    Friend WithEvents TextBox1 As TextBox
-    Friend WithEvents Button2 As Button
-    Friend WithEvents Button3 As Button
-    Friend WithEvents Button4 As Button
+    Friend WithEvents message As TextBox
+    Friend WithEvents sendbutton As Button
+    Friend WithEvents checkbutton As Button
+    Friend WithEvents announcebutton As Button
     Friend WithEvents TextBox2 As TextBox
     Friend WithEvents Label5 As Label
 End Class
