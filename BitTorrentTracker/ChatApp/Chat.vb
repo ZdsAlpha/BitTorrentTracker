@@ -15,6 +15,7 @@ Public Class Chat
             _tracker.Connect(Split(Trackers.Text, ":")(0), Integer.Parse(Split(Trackers.Text, ":")(1)))
             checkbutton.Enabled = True
             channel.Enabled = True
+            announcebutton.Enabled = True
         Catch ex As Exception
             _listener = Nothing
             _tracker = Nothing
@@ -36,6 +37,20 @@ Public Class Chat
             MsgBox(result(0).Seeders.ToString + " people have announced to this channel.")
         Catch ex As Exception
             MsgBox("Unable to fetch channel info.")
+        End Try
+    End Sub
+    Private Sub announcebutton_Click(sender As Object, e As EventArgs) Handles announcebutton.Click
+        Try
+            Dim hasher As New SHA1CryptoServiceProvider
+            Dim hash As Byte() = hasher.ComputeHash(System.Text.Encoding.ASCII.GetBytes(channel.Text))
+            Dim id(19) As Byte
+            Dim r As New Random
+            r.NextBytes(id)
+            Dim ipendpoint As IPEndPoint = _listener.Client.LocalEndPoint
+            Dim result = _tracker.Announce(hash, id,,,,,,, ipendpoint.Port)
+            _clients = result.Clients
+        Catch ex As Exception
+            MsgBox("Unable to announce.")
         End Try
     End Sub
 End Class
