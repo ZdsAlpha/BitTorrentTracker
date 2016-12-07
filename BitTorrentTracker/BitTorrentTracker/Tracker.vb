@@ -1,221 +1,220 @@
-﻿Imports System.ComponentModel
-Imports System.Net
+﻿Imports System.Net
 Imports System.Net.Sockets
+Imports MiscUtil.Conversion
 Imports MiscUtil.IO
-
-Public Class Tracker
-    Implements IDisposable
-    Private Shared bitconverter As New MiscUtil.Conversion.BigEndianBitConverter
-    Private Shared random As New Random
-    Private _client As UdpClient
-    Private _endpoint As IPEndPoint
-    Private _connectionid As Long = &H41727101980L
+Public Class BitTorrentTracker
+    Public Const SleepTime As Integer = 50
+    Private _Stopwatch As New Stopwatch
+    Private _BitConverter As New BigEndianBitConverter
+    Private _Random As New Random
+    Private _Client As UdpClient
+    Private _IPEndPoint As IPEndPoint = Nothing
+    Private _ConnectionId As ULong = &H41727101980UL
+    Public Event OnIrrelevantPacketReceived(Source As IPEndPoint, Packet As Byte())
+    Public Property Timeout As TimeSpan = TimeSpan.FromSeconds(1)
     Public ReadOnly Property IsDisposed As Boolean
         Get
-            Return _client Is Nothing
+            Return _Stopwatch Is Nothing Or _BitConverter Is Nothing Or _Random Is Nothing Or _Client Is Nothing
         End Get
     End Property
     Public ReadOnly Property IsConnected As Boolean
         Get
-            If _endpoint IsNot Nothing AndAlso _connectionid <> &H41727101980L Then Return True
-            Return False
+            Return IPEndPoint IsNot Nothing
         End Get
     End Property
     Public ReadOnly Property Client As UdpClient
         Get
-            Return _client
+            Return _Client
         End Get
     End Property
-    Public ReadOnly Property EndPoint As IPEndPoint
+    Public ReadOnly Property IPEndPoint As IPEndPoint
         Get
-            Return _endpoint
+            Return _IPEndPoint
         End Get
     End Property
-    Public ReadOnly Property ConnectionId As Long
+    Public ReadOnly Property ConnectionId As ULong
         Get
-            Return _connectionid
+            Return _ConnectionId
         End Get
     End Property
-    Public WriteOnly Property Timeout As Integer
-        Set(value As Integer)
-            _client.Client.SendTimeout = value
-            _client.Client.ReceiveTimeout = value
-        End Set
-    End Property
-    Public Sub Connect(EndPoint As IPEndPoint)
-        Dim transaction_id As Integer = random.Next(65535)
-        Dim request As New IO.MemoryStream
-        Dim writer As New EndianBinaryWriter(bitconverter, request)
-        writer.Write(_connectionid)
-        writer.Write(0)
-        writer.Write(transaction_id)
-        Dim rawrequest As Byte() = request.ToArray
-        writer.Dispose()
-        request.Dispose()
-        If _client.Send(rawrequest, rawrequest.Length, EndPoint) <> rawrequest.Length Then Throw New Exception("Packet was not sent properly.")
-        Dim source As IPEndPoint = Nothing
-Retry:
-        Dim rawresponse As Byte() = _client.Receive(source)
-        If source Is Nothing OrElse rawresponse Is Nothing Then Throw New Exception("Failed to get response from server.")
-        If Not EndPoint.Equals(source) Then
-            source = Nothing
-            GoTo Retry
-        End If
-        If rawresponse.Length < 16 Then Throw New Exception("Invalid response from server.")
-        Dim response As New IO.MemoryStream(rawresponse)
-        Dim reader As New EndianBinaryReader(bitconverter, response)
-        If reader.ReadInt32 <> 0 Then Throw New Exception("Invalid return parameter 'action'.")
-        If reader.ReadInt32 <> transaction_id Then Throw New Exception("Invalid transaction id or packet is corrupted.")
-        _connectionid = reader.ReadInt64
-        Me._endpoint = EndPoint
-        reader.Dispose()
-        response.Dispose()
-    End Sub
-    Public Sub Connect(IPAddress As IPAddress, Port As Integer)
-        Connect(New IPEndPoint(IPAddress, Port))
-    End Sub
     Public Sub Connect(Host As String, Port As Integer)
-        Connect(Dns.GetHostEntry(Host).AddressList(0), Port)
+        Dim Addresses As IPAddress() = Dns.GetHostAddresses(Host)
+        If Addresses.Length < 1 Then Throw New SocketException("No such host was found.")
+        Connect(New IPEndPoint(Addresses(0), Port))
     End Sub
-    Public Function Announce(Hash As Byte(), PeerId As Byte(), Optional Downloaded As Long = 0, Optional Remaining As Long = 0, Optional Uploaded As Long = 0, Optional [Event] As EventTypeFilter = EventTypeFilter.Started, Optional IPAddress As IPAddress = Nothing, Optional Count As Integer = -1, Optional Port As UShort = 0) As AnnounceResult
-        If IPAddress Is Nothing Then IPAddress = New IPAddress(0)
-        If _client Is Nothing Then Throw New Exception("Tracker is disposed.")
-        If _endpoint Is Nothing Or _connectionid = &H41727101980L Then Throw New Exception("Not connected to tracker.")
-        If Hash.Length <> 20 Then Throw New Exception("Invalid hash.")
-        If PeerId.Length <> 20 Then Throw New Exception("Invalid PeerId.")
-        Dim transaction_id As Integer = random.Next(65535)
-        Dim key As Integer = random.Next(65535)
-        Dim request As New IO.MemoryStream
-        Dim writer As New EndianBinaryWriter(bitconverter, request)
-        writer.Write(_connectionid)
-        writer.Write(1)
-        writer.Write(transaction_id)
-        writer.Write(Hash)
-        writer.Write(PeerId)
-        writer.Write(Downloaded)
-        writer.Write(Remaining)
-        writer.Write(Uploaded)
-        writer.Write([Event])
-        writer.Write(bitconverter.ToInt32(IPAddress.GetAddressBytes().Reverse.ToArray, 0))
-        writer.Write(key)
-        writer.Write(Count)
-        writer.Write(Port)
-        Dim rawrequest As Byte() = request.ToArray
-        writer.Dispose()
-        request.Dispose()
-        If _client.Send(rawrequest, rawrequest.Length, _endpoint) <> rawrequest.Length Then Throw New Exception("Packet was not sent properly.")
-        Dim source As IPEndPoint = Nothing
-Retry:
-        Dim rawresponse As Byte() = _client.Receive(source)
-        If source Is Nothing OrElse rawresponse Is Nothing Then Throw New Exception("Failed to get response from server.")
-        If Not _endpoint.Equals(source) Then
-            source = Nothing
-            GoTo Retry
-        End If
-        If rawresponse.Length < 20 Then Throw New Exception("Invalid response from server.")
-        Dim response As New IO.MemoryStream(rawresponse)
-        Dim reader As New EndianBinaryReader(bitconverter, response)
-        If reader.ReadInt32 <> 1 Then Throw New Exception("Invalid return parameter 'action'.")
-        If reader.ReadInt32 <> transaction_id Then Throw New Exception("Invalid transaction id or packet is corrupted.")
-        Dim interval As Integer = reader.ReadInt32
-        Dim leechers As Integer = reader.ReadInt32
-        Dim seeders As Integer = reader.ReadInt32
-        Dim clients As New List(Of IPEndPoint)
-        While Not response.Position = response.Length
-            Dim IP As New IPAddress(System.BitConverter.GetBytes(reader.ReadInt32).Reverse().ToArray)
-            Dim P As UShort = reader.ReadUInt16
-            clients.Add(New IPEndPoint(IP, P))
-        End While
-        reader.Dispose()
-        response.Dispose()
-        Return New AnnounceResult With {.Interval = interval, .Leechers = leechers, .Seeders = seeders, .Clients = clients.ToArray}
-    End Function
-    Public Function Scrape(ParamArray Hashes As Byte()()) As ScrapeInfo()
-        If _client Is Nothing Then Throw New Exception("Tracker is disposed.")
-        If _endpoint Is Nothing Or _connectionid = &H41727101980L Then Throw New Exception("Not connected to tracker.")
-        If Hashes Is Nothing Then Throw New Exception("Add atleast one hash.")
-        For Each Hash In Hashes
-            If Hash Is Nothing Then Throw New Exception("Hash must not be null.")
-            If Hash.Length <> 20 Then Throw New Exception("Hash size must be 20.")
-        Next
-        Dim transaction_id As Integer = random.Next(65535)
-        Dim request As New IO.MemoryStream
-        Dim writer As New EndianBinaryWriter(bitconverter, request)
-        writer.Write(_connectionid)
-        writer.Write(2)
-        writer.Write(transaction_id)
-        For Each Hash In Hashes
-            writer.Write(Hash)
-        Next
-        Dim rawrequest As Byte() = request.ToArray
-        writer.Dispose()
-        request.Dispose()
-        If _client.Send(rawrequest, rawrequest.Length, _endpoint) <> rawrequest.Length Then Throw New Exception("Packet was not sent properly.")
-        Dim source As IPEndPoint = Nothing
-Retry:
-        Dim rawresponse As Byte() = _client.Receive(source)
-        If source Is Nothing OrElse rawresponse Is Nothing Then Throw New Exception("Failed to get response from server.")
-        If Not _endpoint.Equals(source) Then
-            source = Nothing
-            GoTo Retry
-        End If
-        If rawresponse.Length < 8 Then Throw New Exception("")
-        Dim response As New IO.MemoryStream(rawresponse)
-        Dim reader As New EndianBinaryReader(bitconverter, response)
-        Select Case reader.ReadInt32
-            Case 2
-            Case 3
-                Throw New Exception("Error while scrapping in server.")
-            Case Else
-                Throw New Exception("Invalid return parameter 'action'.")
-        End Select
-        If reader.ReadInt32 <> transaction_id Then Throw New Exception("Invalid transaction id or packet is corrupted.")
-        Dim Result As New List(Of ScrapeInfo)
-        Dim Index As Integer = 0
-        While Not response.Position = response.Length
-            If Index = Hashes.Length Then Exit While
-            Dim seeders As Integer = reader.ReadInt32
-            Dim completed As Integer = reader.ReadInt32
-            Dim leechers As Integer = reader.ReadInt32
-            Dim info As New ScrapeInfo
-            info.Hash = Hashes(Index)
-            info.Seeders = seeders
-            info.Completed = completed
-            info.Leechers = leechers
-            Result.Add(info)
-            Index += 1
-        End While
-        reader.Dispose()
-        response.Dispose()
-        Return Result.ToArray
-    End Function
-    Public Sub Dispose() Implements IDisposable.Dispose
-        _client.Close()
-        _client = Nothing
-        _connectionid = &H41727101980L
+    Public Sub Connect(IPEndPoint As IPEndPoint)
+        SyncLock Client
+            If IsDisposed Then Throw New ObjectDisposedException("Object is disposed and cannot be used. Renew object to use.")
+            If IsConnected Then Disconnect()
+            Dim Action As Action = Action.Connect
+            Dim RequestId As UInteger = GenerateRequestId()
+            Dim Request As EndianBinaryWriter = CreateRequest(Action, RequestId)
+            Send(Request, IPEndPoint)
+            Dim Response As EndianBinaryReader = Receive(IPEndPoint, 16, Action, RequestId)
+            Request.Dispose()
+            Dim ConnectionId As ULong = Response.ReadUInt64
+            Response.Dispose()
+            _IPEndPoint = IPEndPoint
+            _ConnectionId = ConnectionId
+        End SyncLock
     End Sub
+    Public Sub Disconnect()
+        _IPEndPoint = Nothing
+        _ConnectionId = &H41727101980UL
+    End Sub
+    Public Function Announce(Hash As Byte(), PeerId As Byte(), Optional Downloaded As ULong = 0, Optional Remaining As ULong = 0, Optional Uploaded As ULong = 0, Optional [Event] As EventTypeFilter = EventTypeFilter.None, Optional IPAddress As IPAddress = Nothing, Optional Count As UInteger = UInteger.MaxValue, Optional Port As UShort = 0) As ClientsInfo
+        SyncLock Client
+            If IsDisposed Then Throw New ObjectDisposedException("Object is disposed and cannot be used. Renew object to use.")
+            If Not IsConnected Then Throw New InvalidOperationException("Tracker is not connected. Try calling 'Connect'.")
+            If Hash Is Nothing Then Throw New NullReferenceException("Hash cannot be null.")
+            If PeerId Is Nothing Then Throw New NullReferenceException("PeerId cannot be null.")
+            If Hash.Length <> 20 Then Throw New ArgumentException("'Hash' is invalid.")
+            If PeerId.Length <> 20 Then Throw New ArgumentException("'PeerId' is not valid.")
+            If IPAddress Is Nothing Then IPAddress = New IPAddress(0)
+            Dim IPBytes As Byte() = IPAddress.GetAddressBytes
+            If IPBytes.Length <> 4 Then Throw New ArgumentException("IPAddress is invalid. Only IPv4 is supported.")
+            Dim Action As Action = Action.Announce
+            Dim RequestId As UInteger = GenerateRequestId()
+            Dim Request As EndianBinaryWriter = CreateRequest(Action, RequestId)
+            Request.Write(Hash)
+            Request.Write(PeerId)
+            Request.Write(Downloaded)
+            Request.Write(Remaining)
+            Request.Write(Uploaded)
+            Request.Write([Event])
+            Request.Write(IPBytes)
+            Request.Write(0)
+            Request.Write(Count)
+            Request.Write(Port)
+            Send(Request, IPEndPoint)
+            Dim Response As EndianBinaryReader = Receive(IPEndPoint, 20, Action, RequestId)
+            Request.Dispose()
+            Dim Interval As UInteger = Response.ReadUInt32
+            Dim Leechers As UInteger = Response.ReadUInt32
+            Dim Seeders As UInteger = Response.ReadUInt32
+            Dim EndPoints As New List(Of IPEndPoint)
+            While Response.BaseStream.Position < Response.BaseStream.Length
+                Dim EndPointAddress As IPAddress = New IPAddress(Response.ReadBytes(4))
+                Dim EndPointPort As UShort = Response.ReadUInt16
+                EndPoints.Add(New IPEndPoint(EndPointAddress, EndPointPort))
+            End While
+            Response.Dispose()
+            Dim Result As New ClientsInfo
+            Result.Interval = Interval
+            Result.Leechers = Leechers
+            Result.Seeders = Seeders
+            Result.Clients = EndPoints.ToArray
+            Return Result
+        End SyncLock
+    End Function
+    Public Function Announce(Hash As Byte(), PeerId As Byte(), [Event] As EventTypeFilter, Port As UShort) As ClientsInfo
+        Return Announce(Hash, PeerId,,,, [Event],,, Port)
+    End Function
+    Public Function Scrape(ParamArray Hashes As Byte()()) As TorrentInfo()
+        SyncLock Client
+            If IsDisposed Then Throw New ObjectDisposedException("Object is disposed and cannot be used. Renew object to use.")
+            If Not IsConnected Then Throw New InvalidOperationException("Tracker is not connected. Try calling 'Connect'.")
+            If Hashes Is Nothing Then Return {}
+            If Hashes.Length = 0 Then Return {}
+            For Each Hash As Byte() In Hashes
+                If Hash Is Nothing Then Throw New NullReferenceException("Hash cannot be null.")
+                If Hash.Length <> 20 Then Throw New ArgumentException(("'Hash' is invalid."))
+            Next
+            Dim Action As Action = Action.Scrape
+            Dim RequestId As UInteger = GenerateRequestId()
+            Dim Request As EndianBinaryWriter = CreateRequest(Action, RequestId)
+            For Each Hash As Byte() In Hashes
+                Request.Write(Hash)
+            Next
+            Send(Request, IPEndPoint)
+            Dim Response As EndianBinaryReader = Receive(IPEndPoint, 8, Action, RequestId)
+            Request.Dispose()
+            Dim TorrentsInfo(Hashes.Length - 1) As TorrentInfo
+            For I = 0 To TorrentsInfo.Length - 1
+                Dim Info As New TorrentInfo
+                Info.Hash = Hashes(I)
+                Info.Seeders = Response.ReadUInt32
+                Info.Completed = Response.ReadUInt32
+                Info.Leechers = Response.ReadUInt32
+                TorrentsInfo(I) = Info
+            Next
+            Return TorrentsInfo
+        End SyncLock
+    End Function
+    Private Function GenerateRequestId() As UInteger
+        Return _Random.Next()
+    End Function
+    Private Function CreateRequest(Action As Action, RequestId As UInteger) As EndianBinaryWriter
+        Dim Request As New IO.MemoryStream
+        Dim Writer As New EndianBinaryWriter(_BitConverter, Request)
+        Writer.Write(ConnectionId)
+        Writer.Write(Action)
+        Writer.Write(RequestId)
+        Return Writer
+    End Function
+    Private Sub Send(Request As EndianBinaryWriter, IPEndPoint As IPEndPoint)
+        Dim Memory As IO.MemoryStream = Request.BaseStream
+        Dim Bytes As Byte() = Memory.ToArray
+        If Client.Send(Bytes, Bytes.Length, IPEndPoint) <> Bytes.Length Then Throw New SocketException("Packet was not sent properly.")
+    End Sub
+    Private Function Receive(IPEndPoint As IPEndPoint, MinimumSize As Long, Action As Action, RequestId As UInteger) As EndianBinaryReader
+        _Stopwatch.Restart()
+        Do
+            If Client.Available = 0 Then
+                If _Stopwatch.Elapsed >= Timeout Then Throw New TimeoutException("Packet was not received in time.")
+                Threading.Thread.Sleep(SleepTime)
+            Else
+                Dim Source As IPEndPoint = Nothing
+                Dim Buffer As Byte() = Client.Receive(Source)
+                If Source IsNot Nothing And Buffer IsNot Nothing Then
+                    If IPEndPoint.Equals(Source) Then
+                        Dim Reader As New EndianBinaryReader(_BitConverter, New IO.MemoryStream(Buffer))
+                        If ValidateResponse(Reader, MinimumSize, Action, RequestId) Then
+                            Return Reader
+                        Else
+                            Reader.Dispose()
+                            RaiseEvent OnIrrelevantPacketReceived(Source, Buffer)
+                        End If
+                    Else
+                        RaiseEvent OnIrrelevantPacketReceived(Source, Buffer)
+                    End If
+                End If
+            End If
+        Loop
+    End Function
+    Private Function ValidateResponse(Response As EndianBinaryReader, MinimumSize As Long, Action As Action, RequestId As UInteger) As Boolean
+        If Response.BaseStream.Length < MinimumSize Then Return False
+        If Response.ReadUInt32 <> Action Then Return False
+        If Response.ReadUInt32 <> RequestId Then Return False
+        Return True
+    End Function
     Sub New()
-        _client = New UdpClient
+        _Client = New UdpClient
     End Sub
     Sub New(Client As UdpClient)
-        _client = Client
+        _Client = Client
     End Sub
-    Public Structure ScrapeInfo
+    Public Structure TorrentInfo
         Public Hash As Byte()
-        Public Seeders As Integer
-        Public Completed As Integer
-        Public Leechers As Integer
+        Public Seeders As UInteger
+        Public Completed As UInteger
+        Public Leechers As UInteger
     End Structure
-    Public Structure AnnounceResult
-        Public Interval As Integer
-        Public Leechers As Integer
-        Public Seeders As Integer
+    Public Structure ClientsInfo
+        Public Interval As UInteger
+        Public Leechers As UInteger
+        Public Seeders As UInteger
         Public Clients As IPEndPoint()
     End Structure
-    Public Enum EventTypeFilter As Integer
+    Public Enum EventTypeFilter As UInteger
         None = 0
         Completed = 1
         Started = 2
         Stopped = 3
+    End Enum
+    Public Enum Action As UInteger
+        Connect = 0
+        Announce = 1
+        Scrape = 2
     End Enum
 End Class
