@@ -39,7 +39,7 @@ Public Class BitTorrentTracker
     End Property
     Public Sub Connect(Host As String, Port As Integer)
         Dim Addresses As IPAddress() = Dns.GetHostAddresses(Host)
-        If Addresses.Length < 1 Then Throw New SocketException("No such host was found.")
+        If Addresses.Length < 1 Then Throw New SocketException("No such host is found.")
         Connect(New IPEndPoint(Addresses(0), Port))
     End Sub
     Public Sub Connect(IPEndPoint As IPEndPoint)
