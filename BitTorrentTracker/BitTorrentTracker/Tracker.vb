@@ -1,12 +1,13 @@
 ﻿Imports System.Net
 Imports System.Net.Sockets
+Imports System.Security.Cryptography
 Imports MiscUtil.Conversion
 Imports MiscUtil.IO
 Public Class BitTorrentTracker
     Public Const SleepTime As Integer = 50
     Private _Stopwatch As New Stopwatch
     Private _BitConverter As New BigEndianBitConverter
-    Private _Random As New Random
+    Private _Random As New RNGCryptoServiceProvider
     Private _Client As UdpClient
     Private _IPEndPoint As IPEndPoint = Nothing
     Private _ConnectionId As ULong = &H41727101980UL
@@ -142,7 +143,9 @@ Public Class BitTorrentTracker
         End SyncLock
     End Function
     Private Function GenerateRequestId() As UInteger
-        Return _Random.Next()
+        Dim Bytes(4 - 1) As Byte
+        _Random.GetBytes(Bytes)
+        Return _BitConverter.ToUInt32(Bytes, 0)
     End Function
     Private Function CreateRequest(Action As Action, RequestId As UInteger) As EndianBinaryWriter
         Dim Request As New IO.MemoryStream
@@ -155,13 +158,13 @@ Public Class BitTorrentTracker
     Private Sub Send(Request As EndianBinaryWriter, IPEndPoint As IPEndPoint)
         Dim Memory As IO.MemoryStream = Request.BaseStream
         Dim Bytes As Byte() = Memory.ToArray
-        If Client.Send(Bytes, Bytes.Length, IPEndPoint) <> Bytes.Length Then Throw New SocketException("Packet was not sent properly.")
+        If Client.Send(Bytes, Bytes.Length, IPEndPoint) <> Bytes.Length Then Throw New SocketException("Packet is not sent properly.")
     End Sub
     Private Function Receive(IPEndPoint As IPEndPoint, MinimumSize As Long, Action As Action, RequestId As UInteger) As EndianBinaryReader
         _Stopwatch.Restart()
         Do
             If Client.Available = 0 Then
-                If _Stopwatch.Elapsed >= Timeout Then Throw New TimeoutException("Packet was not received in time.")
+                If _Stopwatch.Elapsed >= Timeout Then Throw New TimeoutException("Packet is not received in time.")
                 Threading.Thread.Sleep(SleepTime)
             Else
                 Dim Source As IPEndPoint = Nothing
